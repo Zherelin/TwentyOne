@@ -1,13 +1,13 @@
 namespace LibraryCard
 {
-    enum Suit
+    public enum Suit
     {
         Hearts, // Черви
         Spades, // Пики
         Diamonds, // Бубны
         Clubs // Крести
     }
-    class Card
+    public class Card
     {
         private int typeCard; // Значение карты
         private Suit suitCard; // Масть карты
