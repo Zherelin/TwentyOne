@@ -6,10 +6,16 @@ using LibraryCard;
 public class MainGame : MonoBehaviour
 {
     List<Card> deck = new List<Card>(); // Создание колоды
-    List<Card> banker = new List<Card>(); // Создание колоды для банкира
-    public Transform PosPlayer1;
-    public Player Player1;
-    bool show = false; // Переключатель ! Временно !
+    List<Card> deckWagered = new List<Card>(); // Отыгранная колода
+    int bank = 300; // Банк игры
+    public Player Banker;
+    public Player Player1; 
+    public Player Player2;
+    private int queue = 0; // Очередь игрока с котором играет банкир
+    private bool showCards = false; // Переключатель 
+
+    private Player[] players = new Player[2]; // Массив игроков
+    
 
     void Shuffling(ref List<Card> deck) // Функция перетасовки карт
     {
@@ -45,19 +51,36 @@ public class MainGame : MonoBehaviour
         }
         Shuffling(ref deck);
 
-        BankerTakeCard();      //
-        TakeCard(ref Player1); // Добавление карт банкиру и игроку (пока только одному)
-        TakeCard(ref Player1); //
+        Banker.Coins = bank;  // Присвоение банкиру сумму банка
 
+        players[0] = Player1; // Добавление игроков в общий массив
+        players[1] = Player2; //
+
+        StartCoroutine(StartGame());
     }
 
-    public void Update()
+    IEnumerator StartGame() // Функция логики игры
     {
-        if(show == true)
+        while (Banker.Coins > 0)
         {
-            int scorePlayer = Score(ref Player1);
-            Debug.Log("Score player1 = " + scorePlayer);
-            show = false;
+            for (int i = 0; i < players.Length; i++)
+            {
+                queue = i;
+                TakeCard(ref players[queue]); // Добавление карты игроку
+                TakeCard(ref Banker); // Добавление карты банкиру (скорее всего эту строку нужно будет добавить после нажитии кнопки)
+
+                // Добавить логику ставки
+
+                yield return new WaitUntil(() => showCards == true);
+                Debug.Log("Score player" + i + ": " + players[i].Score);
+
+                // Добавить логику банкиру
+
+                DeckWagered(ref players[queue]);
+                DeckWagered(ref Banker);
+                showCards = false;
+            }
+            DeckWageredDelete();
         }
     }
 
@@ -71,32 +94,51 @@ public class MainGame : MonoBehaviour
         player.SetCard = deck[num];
         deck.RemoveAt(num);
     }
-    public void TakeCard() // Взять карту игроку, функция к кнопке
+
+    public void TakeCard() // Взять карту игроку по нажатию кнопки
     {
         int num = Random.Range(0, deck.Count);
-        Player1.SetCard = deck[num];
+        players[queue].SetCard = deck[num];
         deck.RemoveAt(num);
     }
-    public void ShowCards() // Переключатель для показа карт !!! Возможно нужно изменить !!!
+
+    public void ShowCards() { showCards = true; } // Переключатель для показа карт 
+
+    public void SetCard() // !!! Временная функция для вывода колоды игрока
     {
-        show = true;
+        Debug.Log("Player" + (queue + 1));
+        for (int i = 0; i < players[queue].Size; i++)
+            Debug.Log("Card " + (i + 1) + ": " + players[queue].GetCard(i).Type + " " + players[queue].GetCard(i).Suit);
+
+        Debug.Log("Banker card: " + Banker.GetCard(0).Type + " " + Banker.GetCard(0).Suit);
+
+        Debug.Log("Deck Wagered = " + deckWagered.Count);
+        for (int i = 0; i < deckWagered.Count; i++)
+            Debug.Log("Card " + (i + 1) + ": " + deckWagered[i].Type + " " + deckWagered[i].Suit);
     }
-    private void BankerTakeCard() // Взять карту банкиру
+
+    public void DeckWagered(ref Player player) // Копирование колоды карт игрока и банкира в отыгранную колоду
     {
-        int num = Random.Range(0, deck.Count);
-        banker.Add(deck[num]);
-        deck.RemoveAt(num);
+        int size = player.Size;
+        for(int i = 0; i < size; i++)
+        {
+            deckWagered.Add(player.GetCard(0));
+            player.DeleteCard(0);
+        }
     }
-    public void SetCardGame() // !!! Временная функция для вывода колоды игрока
+
+    private void DeckWageredDelete() // Удаление отыгранной колоды и восстановление начальной
     {
-        for (int i = 0; i < Player1.Size; i++)
-            Debug.Log("Card " + i + ": " + Player1.GetCard(i).Type + " " + Player1.GetCard(i).Suit);
+        int size = deckWagered.Count;
+        for (int i = 0; i < size; i++)
+        {
+            deck.Add(deckWagered[0]);
+            deckWagered.RemoveAt(0);
+        }
     }
-    public int Score(ref Player player) // Подсчёт очков игрока
+
+    public void SizeDeck() // Временно!
     {
-        int score = 0;
-        for (int i = 0; i < player.Size; i++)
-            score += player.GetCard(i).Type;
-        return score;
+        Debug.Log("Size deck = " + deck.Count);
     }
 }

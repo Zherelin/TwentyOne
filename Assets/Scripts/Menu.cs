@@ -13,7 +13,7 @@ public class Menu : MonoBehaviour
     {
         Application.Quit();
     }
-    public void BackMenu()
+    public void BackMenu() // Переход обратно в меню
     {
         SceneManager.LoadScene("Menu");
     }
