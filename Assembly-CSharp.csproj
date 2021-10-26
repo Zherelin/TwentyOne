@@ -57,6 +57,7 @@
     <Compile Include="Assets\Scripts\MainGame.cs" />
     <Compile Include="Assets\Scripts\LibraryCard.cs" />
     <Compile Include="Assets\Scripts\Menu.cs" />
+    <Compile Include="Assets\Scripts\InterfaceGame.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
