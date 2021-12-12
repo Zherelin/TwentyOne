@@ -29,7 +29,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public int Coins// Получение и вывод монет
+    public int Coins // Получение и вывод монет
     {
         get { return coins; }
         set { coins = value; }

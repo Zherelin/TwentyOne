@@ -11,7 +11,8 @@ public class InterfaceGame : MonoBehaviour // Прикреплён к Canvas
     public Text coinsPlayer2; //
     public Text bet;                // Текст ставок
     public GameObject bettingPanel; // Панель ставок
-    public GameObject checkPanel;   // 
+    public GameObject checkPanel;   // Панель выбора действий игры
+    public GameObject buttonTake;   // Кнопка взятия карты
 
     public void Update()
     {
@@ -29,6 +30,11 @@ public class InterfaceGame : MonoBehaviour // Прикреплён к Canvas
         {
             bettingPanel.SetActive(false);
             checkPanel.SetActive(true);
+
+            if (mainGame.MaxCards() == true)
+                buttonTake.SetActive(false);
+            else
+                buttonTake.SetActive(true);
         }
     }
 }

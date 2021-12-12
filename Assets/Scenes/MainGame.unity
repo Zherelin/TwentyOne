@@ -696,6 +696,7 @@ MonoBehaviour:
   bet: {fileID: 1530217122}
   bettingPanel: {fileID: 1561477301}
   checkPanel: {fileID: 1829506159}
+  buttonTake: {fileID: 1145486541}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

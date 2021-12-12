@@ -8,20 +8,20 @@ public class MainGame : MonoBehaviour
     List<Card> deck = new List<Card>(); // Создание колоды
     List<Card> deckWagered = new List<Card>(); // Отыгранная колода
     int bank = 300; // Банк игры
-    public Player Banker;
-    public Player Player1; 
-    public Player Player2;
-    private int queue = 0; // Очередь игрока с котором играет банкир
-    private bool showCards = false; // Переключатель  для кнопки показа карт
     private int bet = 0; // Ставка
-    private bool checkBet = false; // Переключатель для кнопки ставки
+    private int queue = 0; // Очередь игрока с котором играет банкир
 
+    public Player Banker;  // Игроки и банкир 
+    public Player Player1; // 
+    public Player Player2; //
     private Player[] players = new Player[2]; // Массив игроков
+
+    private bool showCards = false; // Переключатель для кнопки показа карт
+    private bool checkBet = false; // Отображает сделана ли ставка
     
 
     void Shuffling(ref List<Card> deck) // Функция перетасовки карт
     {
-        // Усовершенствовать перетасовку!!!
         for (int i = 0; i < deck.Count; i++)
         {
             int random1 = Random.Range(0, deck.Count);
@@ -32,6 +32,7 @@ public class MainGame : MonoBehaviour
             deck[random2] = nullCard;
         }
     }
+
     public void Start()
     {
         for(int type = 2; type <= 11; type++) // Заполнение колоды картами
@@ -65,32 +66,36 @@ public class MainGame : MonoBehaviour
 
     IEnumerator StartGame() // Функция логики игры
     {
-        while (Banker.Coins > 0)
+        while (Banker.Coins > 0) // Условие продолжение игры
         {
             for (int i = 0; i < players.Length; i++)
             {
                 queue = i;
-                TakeCard(ref players[queue]); // Добавление карты игроку
-                TakeCard(ref Banker); // Добавление карты банкиру (скорее всего эту строку нужно будет добавить после нажитии кнопки)
+                if (players[queue].Coins > 0)
+                {
+                    TakeCard(ref players[queue]); // Добавление карты игроку
+                    TakeCard(ref Banker); // Добавление карты банкиру
+                    
+                    // Логика ставки
+                    // !!! Уличшить !!!
+                    bet = 5;                   // Начальная ставка игрока
+                    players[queue].Coins -= 5; //
 
-                // Улучшить !!!
-                // Логика ставки
-                bet = 5;
-                players[queue].Coins -= 5;
-                yield return new WaitUntil(() => checkBet == true);
-                Banker.Coins -= bet;
-                bet *= 2;
-                //
+                    yield return new WaitUntil(() => checkBet == true); // Ожидание нажатия кнопки "Bet"
+                    Banker.Coins -= bet; // Ставка банкира
+                    bet *= 2;            // 
 
-                yield return new WaitUntil(() => showCards == true);
-                Debug.Log("Score player" + i + ": " + players[i].Score); // !!! Временно !!!
+                    yield return new WaitUntil(() => showCards == true); // Ожидание нажатия кнопки "Show"
 
-                // Добавить логику банкиру
+                    Debug.Log("Score player" + i + ": " + players[i].Score); // !!! Временно !!!
 
-                DeckWagered(ref players[queue]);
-                DeckWagered(ref Banker);
-                checkBet = false;
-                showCards = false;
+                    // Добавить логику банкиру
+
+                    DeckWagered(ref players[queue]);
+                    DeckWagered(ref Banker);
+                    checkBet = false;
+                    showCards = false;
+                }
             }
             DeckWageredDelete();
         }
@@ -129,7 +134,7 @@ public class MainGame : MonoBehaviour
             Debug.Log("Wagered Card " + (i + 1) + ": " + deckWagered[i].Type + " " + deckWagered[i].Suit);
     }
 
-    public void DeckWagered(ref Player player) // Копирование колоды карт игрока и банкира в отыгранную колоду
+    public void DeckWagered(ref Player player) // Копирование колоды карт в отыгранную колоду
     {
         int size = player.Size;
         for(int i = 0; i < size; i++)
@@ -169,6 +174,7 @@ public class MainGame : MonoBehaviour
             bet += 5;
         }
     }
+
     public void BetReduction() // Уменьшение ставки
     {
         if (bet > 5)
@@ -176,5 +182,13 @@ public class MainGame : MonoBehaviour
             players[queue].Coins += 5;
             bet -= 5;
         }
+    }
+
+    public bool MaxCards() // Максимально ли кол-во карт у игрока
+    {
+        if (players[queue].Size < 5)
+            return false;
+        else
+            return true;
     }
 }
